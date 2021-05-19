@@ -18,7 +18,7 @@ class SecondActivity : AppCompatActivity() {
 
 
 
-        button.text = a.toString()
+        println(1234565)
 
         button.setOnClickListener {
             val context:Context = this
