@@ -1,8 +1,11 @@
 package com.example.covidsearchproject
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.covidsearchproject.Model.Region
 import com.example.covidsearchproject.Model.Report
 import com.example.covidsearchproject.databinding.ActivityMainBinding
@@ -16,6 +19,7 @@ import org.json.JSONObject
 
 class MainActivity : AppCompatActivity() {
     lateinit var dialog: AlertDialog
+    private var gridLayoutManager: GridLayoutManager? = null
 
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
@@ -25,6 +29,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        binding.textView2.setOnClickListener {
+            val intent = Intent(this,Map::class.java)
+            startActivity(intent)
+        }
 
         var data: MutableList<Report>
         dialog = SpotsDialog.Builder().setCancelable(false).setContext(this).build()
@@ -37,17 +46,13 @@ class MainActivity : AppCompatActivity() {
 
 
                 runOnUiThread {
-                    binding.containerList.removeAllViews()
 
-                    data.forEachIndexed { index, report ->
-                        val cardView = WidgetCOVIDLayout(this@MainActivity)
-
-                        cardView.setInit(report)
-                        binding.containerList.addView(cardView)
-
-                        println(report.deaths)
-                    }
-
+                    val adapter = ReportAdapter(data)
+                    binding.reportRecycleView.adapter = adapter
+                    binding.reportRecycleView.hasFixedSize()
+                    gridLayoutManager =
+                        GridLayoutManager(this@MainActivity, 1, LinearLayoutManager.VERTICAL, false)
+                    binding.reportRecycleView.layoutManager = gridLayoutManager
 
                 }
             }
