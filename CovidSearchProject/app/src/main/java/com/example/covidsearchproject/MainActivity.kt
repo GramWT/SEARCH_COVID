@@ -19,7 +19,7 @@ import org.json.JSONObject
 
 class MainActivity : AppCompatActivity() {
     lateinit var dialog: AlertDialog
-    private var gridLayoutManager: GridLayoutManager? = null
+    private var linearLayoutManager: LinearLayoutManager? = null
 
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
@@ -47,12 +47,11 @@ class MainActivity : AppCompatActivity() {
 
                 runOnUiThread {
 
-                    val adapter = ReportAdapter(data)
+                    val adapter = ReportAdapter(this@MainActivity,data)
                     binding.reportRecycleView.adapter = adapter
-                    binding.reportRecycleView.hasFixedSize()
-                    gridLayoutManager =
-                        GridLayoutManager(this@MainActivity, 1, LinearLayoutManager.VERTICAL, false)
-                    binding.reportRecycleView.layoutManager = gridLayoutManager
+                    linearLayoutManager =
+                        LinearLayoutManager(this@MainActivity,LinearLayoutManager.VERTICAL,false)
+                    binding.reportRecycleView.layoutManager = linearLayoutManager
 
                 }
             }
@@ -82,13 +81,18 @@ class MainActivity : AppCompatActivity() {
 
         val count = jsonObject.getJSONArray("data").length()
 
-        var reportData = mutableListOf<Report>()
+        val reportData = mutableListOf<Report>()
+        val filterRegion = mutableListOf<String>()
 
         for (i in 0 until count) {
             val item = jsonObject.getJSONArray("data")[i].toString()
             val reportFile = JSONObject(item)
             val regionCount = reportFile.getString("region")
             val regionFile = JSONObject(regionCount)
+
+            if (regionFile.getString("name") !in filterRegion){
+                filterRegion.add(regionFile.getString("name"))
+            }
             val report = Report(
                 reportFile.getString("date"),
                 reportFile.getString("confirmed"),
@@ -110,6 +114,8 @@ class MainActivity : AppCompatActivity() {
 
             reportData.add(i,report)
         }
+
+        println(filterRegion)
 
         return reportData
 

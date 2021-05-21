@@ -1,5 +1,6 @@
 package com.example.covidsearchproject
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,7 +9,7 @@ import com.example.covidsearchproject.Model.Report
 import com.example.covidsearchproject.databinding.ReportRowBinding
 import kotlinx.android.synthetic.main.report_row.view.*
 
-class ReportAdapter(private var reportList:List<Report>) : RecyclerView.Adapter<ReportAdapter.MyViewHolder>() {
+class ReportAdapter(private val context: Context,private var reportList:List<Report>) : RecyclerView.Adapter<ReportAdapter.MyViewHolder>() {
 
 
     private lateinit var binding: ReportRowBinding
@@ -18,7 +19,7 @@ class ReportAdapter(private var reportList:List<Report>) : RecyclerView.Adapter<
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
-        binding = ReportRowBinding.inflate(LayoutInflater.from(parent.context))
+        binding = ReportRowBinding.inflate(LayoutInflater.from(parent.context),parent,false)
 
         return MyViewHolder(binding.root)
     }
@@ -27,9 +28,14 @@ class ReportAdapter(private var reportList:List<Report>) : RecyclerView.Adapter<
         val currentItem = reportList[position]
         holder.itemView.region_textView.text = currentItem.region?.name.toString()
         holder.itemView.province_textView.text = currentItem.region?.province.toString()
-        holder.itemView.confirmed_textView.text = currentItem.confirmed
-        holder.itemView.recovered_textView.text = currentItem.recovered
-        holder.itemView.deaths_textView.text = currentItem.deaths
+        if (currentItem.region?.province.isNullOrEmpty()){
+            holder.itemView.province_textView.visibility = View.INVISIBLE
+            holder.itemView.province_label.visibility = View.INVISIBLE
+        }
+
+        holder.itemView.reportLayout.setOnClickListener {
+            context.startActivity(ReportDataActivity.createIntent(context,currentItem))
+        }
     }
 
     override fun getItemCount(): Int {
